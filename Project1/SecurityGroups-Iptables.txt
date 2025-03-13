@@ -1,0 +1,13 @@
+1. launch an EC2 instance in AWS, on public subnet
+2. configure SG to accept ssh connect 
+3. Login to EC2 using AWS connect or using ssh key 
+4. Check Iptables default configuration using below commands 
+
+sudo iptables --list 
+5. lets now block ssh connection 
+sudo iptables -A INPUT -p tcp --dport 22 -j REJECT
+
+6. This will immediately apply and block ssh connection. 
+
+Usecase: Set the SG for group of EC2 instances and then use iptable rule for specific EC2 instances. 
+7. SG is external firewall configuration outside of ec2   
