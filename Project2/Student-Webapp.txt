@@ -1,0 +1,97 @@
+About: In this project we will create a simple web application app.py using python flask. This app will provide frontend page to accept student name and marks and will store in MySQL data base. This app will be running on amazon ec2 instance (amz Linux 2023). We will also provision elastic ip and assign it to ec2 instance. We will create a Route 53 record on public hosted zone that will be mapped to EIP. We will mention steps to follow to enable SSL communication between client and web application.  
+
+1. Provision an ec2 instance using Amz Linux AMI 
+2. Login to ec2 instance using ssh key pair or AWS connect. 
+3. Now we will first set up our MySQL database. 
+   3.1. Download RPM 
+        sudo wget https://dev.mysql.com/get/mysql80-community-release-el9-1.noarch.rpm 
+
+   3.2  Install the RPM
+
+        sudo dnf install mysql80-community-release-el9-1.noarch.rpm -y
+
+   3.3  We need public key to validate installation 
+        sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+
+   3.4  Install MySQL client 
+        sudo dnf install mysql-community-client -y 
+
+   3.5 Install server 
+       sudo dnf install mysql-community-server -y
+
+   3.6 run 
+       sudo dnf update
+       sudo systemctl start mysqld.service 
+       sudo systemctl status mysqld.service 
+       sudo systemctl enable  mysqld.service 
+
+   3.8 To validate installation run mysql --version  
+   Ref:  
+   https://dev.to/aws-builders/installing-mysql-on-amazon-linux-2023-1512
+4. Setup the database password 
+   4.1  Get temporary password:  sudo grep 'temporary password' /var/log/mysqld.log
+   4.2  mysql -u root -p  and enter temp password 
+   4.3  ALTER USER 'root'@'localhost' IDENTIFIED BY 'ValidPassword'; FLUSH PRIVILEGES;
+        run this command to change the password 
+5. Logout (ctr+D ) or exit;  and login again with new password 
+6. Create the database with single table. 
+
+   CREATE DATABASE student_db;
+
+USE student_db;
+
+CREATE TABLE students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    marks INT
+);
+
+7. To verify run select * from students ; this would return and empty table. 
+8. Now we will setup python flask app 
+   8.1  sudo dnf install python -y 
+   8.2  sudo dnf install pip -y 
+   8.3  sudo pip install flask mysql-connector-python
+9. Select some dir on system and copy app.py 
+10. In that same dir create templates
+11. copy index.html file in side templates
+12. In app.py replace host with internal ip and port as per your choice 
+13. run sudo python app.py 
+14. Verify socket netstat -lnp |grep -i mysql and netstat -lnp |grep -i <port>
+15. Setup SG and open inbound connection for http request on same port. 
+
+16. Verify application with public DNS URL and querying DB 
+
+17. Provision an elastic ip address and attach with this EC2 Instance.
+18. Create URL on Route53 hosted zone. 
+    18.1 Go to route53 public hosted zone. create a record
+    
+    18.2 Enter subdomain name like students.<name of your hosted zone> select A type resource since we are using EIP address or choose CNAME     record with EIP DNS URL like  ec2-44-206-108-196.compute-1.amazonaws.com enter the value of Ip address , in this case elastic ip address and hit create record button. 
+
+19: Enable SSL 
+
+19. Remember we can not use ACM cert for EIP based route 53 URL.We can Request ACM Certs for ALB FQDN URL or ALB based route 53 URL.   While we request certs for Route53 URL but for SSL enabled communication we need to provision ALB and request ACM cert for ALB. Below are the steps to use route 53 URL which is mapped to ALB and enable SSL communication. 
+
+20.Provision SSL enabled route 53 URL for application. 
+   20.1 In production env we use webserver and configure webserver for ssl communication. In this particular case we are using flask based python app. which will listen request on port 80 and TLS termination will happen on ALB only that means from ALB to Flask app communication is not encrypted. 
+   20.2 If we ever want ALB till app communication to be encrypted we can use self signed certs as with ACM certs we can not have access on private key that we need at line app.run(debug=True, host='0.0.0.0', port=443, ssl_context=('path/to/certificate.pem', 'path/to/private_key.pem'))
+
+   20.3 Run your app behind ALB and verify if it configured to listen on 443. we can use ASG behind ALB. 
+   20.4 Create CNAME record for ALB url on route 53 public hosted zone.
+   20.5 On ACM  request cert for route 53 FQDN and use DNS validation.
+   20.6 Create DNS record and wait for cert status "Issued" 
+   20.7 Open port 443 on SG 
+   20.7 Make changes in app.py 
+   20.8 Verify ssl based URL        
+
+
+
+
+    
+
+
+
+
+   
+   
+
+	
