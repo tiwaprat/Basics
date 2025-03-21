@@ -1,4 +1,4 @@
-Overview
+**Overview**
 This repository contains a collection of various projects created as experiments in building and configuring infrastructure. The objective of these simple projects is to deepen the understanding of fundamental concepts and how they apply to real-world use cases.
 
 **Project 1:** This project focuses on firewall settings and iptables configuration, exploring how these configurations can impact access to resources or applications running on an EC2 instance. It highlights key aspects of network security and access control.
