@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'my-custom-mysql'  # Change this if you use a different host
 app.config['MYSQL_USER'] = 'root'  # Replace with your MySQL username
 app.config['MYSQL_PASSWORD'] = 'secret123'  # Replace with your MySQL password
-app.config['MYSQL_DB'] = 'student_db'  # The database you created
+app.config['MYSQL_DB'] = 'students_db'  # The database you created
 
 # Initialize MySQL connection
 def get_db_connection():
