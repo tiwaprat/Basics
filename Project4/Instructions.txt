@@ -1,0 +1,108 @@
+About: Here are steps to create containerized version of student we application, that we have previously deployed on ec2.
+
+1. Launch an ubuntu based ec2 instance. 
+2. sudo apt update
+3. sudo sudo apt install docker.io -y 
+4. sudo su -
+5. systemctl status docker   To verify installation
+
+----------------------Building custom mysql image [Artifacts are in this doc, github and in dockerhub] ------------------------------------
+
+6. mkdir workdir_mysql
+7. cd workdir_mysql
+8. create a docker file with this content 
+
+FROM mysql:latest
+
+# Set environment variables
+ENV MYSQL_DATABASE students_db
+
+# Copy custom scripts or configuration files from your host to the container
+COPY ./scripts/ /docker-entrypoint-initdb.d/
+
+9. mkdir workdir_mysql/scripts
+10. inside scripts dir create a file create_table.sql with following content 
+
+CREATE TABLE IF NOT EXISTS students (
+         id INT AUTO_INCREMENT PRIMARY KEY,
+         name VARCHAR(100),
+         marks INT
+     );
+FLUSH TABLES;
+
+11. Build your custom image from workdir_mysql by running  
+    docker build -t my-custom-mysql .
+12. verify with docker images 
+13. Now its time to create container from this image 
+    
+    docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=pwd123 -v mysql_data:/var/lib/MySQL -d my-custom-mysql 
+    
+    The above command will create volume on host machine at location /var/lib/docker/volumes
+14. To verify id the database and table is created with this image run 
+     docker exec -it mysql-container bash
+     mysql -u root -p 
+     show databases; 
+     use students_db;
+     show tables; 
+15. push this custom image to dockerhub run the following command 
+    docker login      [enter credentials] 
+    docker tag my-custom-mysql awsaug2021/my-custom-mysql:latest     [Tag your image]
+    docker push  awsaug2021/my-custom-mysql:latest
+16. Now remove all images and containers 
+
+17. run : docker run --name my-custom-mysql -e MYSQL_ROOT_PASSWORD=secret123 -v mysql_data:/var/lib/MySQL -d awsaug2021/my-custom-mysql 
+         
+    we can choose password and container name but make sure the same should be used in app.py
+
+18. Verify if the "students_db" database and "students" table do exists 
+    docker exec -it mysql-container bash
+    mysql -u root -p
+    show databases; 
+    use students_db;
+    show tables; 
+    exit; 
+19. Logout from container. and remove the container. 
+
+---------------------------Building python flask app image [Artifacts are in GitHub and dockerhub]-----------------------------------
+
+18. Now clone on local host https://github.com/tiwaprat/Basics and modify app.py as per my-custom-mysql container. and push back these changes       to git hub 
+19.Building application image : 
+   clone repo in ec2 instance 
+   go to /root/Basics/Project4/workdir_app
+
+   build image from workdir_app folder  run:
+   docker build -t myapp .
+   get the image name  docker images  
+
+   push image to dockerhub run:
+   docker login 
+   docker tag myapp awsaug2021/myapp:latest       [tag the image]
+   docker push awsaug2021/myapp:latest
+20: Now remove all images and containers 
+21. create an app container listening on port 80 
+
+    docker run --name myapp -p 80:80 -d awsaug2021/myapp
+22. access application using public ip of ec2.  [make sure default http port is open. Since app is not connected to database we will get error]
+23. Remove container.
+
+------------------- Establish connectivity between app and mysql container----------------
+
+Ideally we should use a custom bridge network and run containers in that network, because custom bridge network do provide DNS capabilities and containers can resolve each other names. 
+But here we will use docker0 (default bridge network and manually assign ip address to container names. This is not right way since containers Ip address are volatile and should not be hardened) for testing purpose. 
+
+Steps: 
+24. First check host name in /root/Basics/Project4/workdir_app/app.py [I found "my-custom-mysql", we will create database container with the same name]
+25.  docker run --name my-custom-mysql -e MYSQL_ROOT_PASSWORD=secret123 -v mysql_data:/var/lib/MySQL -d awsaug2021/my-custom-mysql
+26.  docker run --name myapp  -p 80:80 -d awsaug2021/myapp
+27.  docker inspect my-custom-mysql | grep -i ip     note container ip 
+28.  docker exec -it myapp bash
+     apt update
+     apt install vim -y 
+29.  add below line in /etc/hosts
+     172.17.0.2  my-custom-mysql  
+30. Access the application to verify      
+    
+
+    
+
+  
