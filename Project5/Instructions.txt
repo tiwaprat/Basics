@@ -1,0 +1,18 @@
+About project: In this project we will deploy same containerized version of students app but this in two separate ec2 instance. 
+
+1. Launch one ec2 instance with ubuntu image.
+2. clone repo https://github.com/tiwaprat/Basics
+3. cd Project5
+4. Now edit app.py in /root/Basics/Project5/workdir_app. put hostname as private and public ip address of mysql ec2 instance.
+5. sudo apt update -y 
+6. sudo apt install docker.io -y 
+7. sudo docker build -t myapp .  
+8. docker run --name myapp -p 80:80 -d myapp
+
+
+9.  Login to MySQL ec2 instance
+10. install docker
+11. run: docker login 
+12. docker run --name my-custom-mysql -e MYSQL_ROOT_PASSWORD=secret123 -p 3306:3306 -v mysql_data:/var/lib/MySQL -d awsaug2021/my-custom-MySQL
+13. Open MySQL Port 3306 in Security Group. 
+14. Verify connectivity with accessing application. 

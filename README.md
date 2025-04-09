@@ -8,3 +8,5 @@ This repository contains a collection of various projects created as experiments
 **Project 3** Recently, I participated in a hackathon organized by HCL, where I worked on a project that involved creating an infrastructure using Terraform. The project required setting up an AWS Lambda function to process images uploaded to one S3 bucket and store the processed images in another S3 bucket. Attached is the functional project.
 
 **Project 4**: This project involves creating a containerized version of the student app on a single EC2 instance. All steps are outlined in detail, along with other artifacts
+
+**Project 5**: This project involves creating a containerized version of the student app runnning on ec2 and connected with mysql container running on another ec2 . All steps are outlined in detail, along with other artifacts in github project4
