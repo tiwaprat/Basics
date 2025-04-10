@@ -1,0 +1,33 @@
+Steps: 
+1. Launch ubuntu based ec2
+2. apt update 
+3. apt install docker.io -y
+4. Create a user-defined network 
+5. Run :
+ docker network create --subnet=172.28.0.0/16 my-custom-nw
+6. Deploy MySQL and App containers in this network 
+7. docker login 
+8. docker run --name my-custom-mysql -e MYSQL_ROOT_PASSWORD=secret123 -v mysql_data:/var/lib/MySQL --network my-custom-nw -d awsaug2021/my-custom-MySQL
+9. docker run --name myapp  -p 80:80 --network my-custom-nw -d awsaug2021/myapp
+10. Since inside app we have reference database host name as MySQL container name. And these containers are in same user defined nw. Application should be able to resolve database host name. 
+11. Verify connectivity by access application using ec2 public ip. 
+
+12. Now lets stop and destroy my-custom-mysql container and redeploy my-custom-mysql container in default nw docker0 
+13. Test app , app will not be able to connect db. 
+14. lets destroy both the containers and use docker compose
+
+15. Its recommended to use same user-defined nw for both containers. else connectivity is possible but its quite messy. In same user defined  nw , containers cam resolve  each others name if they are on same host. Incase containers are on different host we use port forwarding mention like in project 5 where we mentioned ip of container host in app.py. 
+16. For a change lets use docker compose file for creating infra
+17. Run: apt update
+18. Run: apt install docker-compose
+19. create file docker-compose.yml in some dir 
+20. docker-compose up
+21. Verify the application by access ec2 public URL
+ 
+
+ 
+     
+
+
+  
+ 
